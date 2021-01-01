@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+
+    nginx:
+        image: nginx:1.15-alpine
+        container_name: nginx
+        ports:
+            - 8080:80
+        volumes:
+            - "$PWD/docker/build/nginx/dev/conf.d:/etc/nginx/conf.d"
+            - "$PWD:/project"
+        depends_on:
+            - fpm
+        networks:
+            - symfony-api-demo
+
+    fpm:
+        image: "$PHP_DEV_IMAGE"
+        user: "$DOCKERUSER"
+        container_name: fpm
+        environment:
+            XDEBUG_CONFIG: "remote_connect_back=1 remote_enable=1"
+        volumes:
+            - "$PWD/docker/runtime/passwd:/etc/passwd:ro"
+            - "$PWD/docker/runtime/group:/etc/group:ro"
+            - "$PWD:/project"
+        networks:
+            - symfony-api-demo
+
+networks:
+    symfony-api-demo:
+        name: symfony-api-demo

@@ -1,0 +1,13 @@
+FROM php:7.4-fpm-buster
+ARG DEBIAN_FRONTEND=noninteractive
+WORKDIR /project
+ENV LANG=ru_RU.UTF-8 \
+	LC_ALL=ru_RU.UTF-8 \
+	LANGUAGE=ru_RU.UTF-8 \
+	COMPOSER_ALLOW_SUPERUSER=1 \
+	COMPOSER_HOME=/tmp
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+RUN pecl install xdebug-2.8.1 && \
+    docker-php-ext-enable xdebug
