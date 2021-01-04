@@ -36,7 +36,7 @@ ifeq ($(UNAME), Darwin)
 	USERGROUP=staff
 endif
 
-.PHONE: dev-prepare-runtime
+.PHONY: dev-prepare-runtime
 dev-prepare-runtime:
 	@echo -e "Preparing runtime group and passwd files..."
 	@echo "$(USER):x:$(USERID):$(GROUPID):$(USERGROUP):/home/$(USER):/bin/bash" > $(PWD)/docker/runtime/passwd
