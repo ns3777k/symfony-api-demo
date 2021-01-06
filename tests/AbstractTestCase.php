@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests;
+
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+
+abstract class AbstractTestCase extends TestCase
+{
+    protected function setEntityId(object $entity, int $value): void
+    {
+        $class = new ReflectionClass($entity);
+
+        $property = $class->getProperty('id');
+        $property->setAccessible(true);
+        $property->setValue($entity, $value);
+        $property->setAccessible(false);
+    }
+}
