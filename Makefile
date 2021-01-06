@@ -4,11 +4,14 @@
 
 .PHONY: lint
 lint:
-	composer validate --strict
 	bin/console lint:container
 	bin/console lint:yaml config/services.yaml --parse-tags
 	vendor/bin/php-cs-fixer fix -v --dry-run --stop-on-violation
 	vendor/bin/phpstan analyse --memory-limit=1G
+
+.PHONY: test
+test:
+	bin/phpunit
 
 #
 # END IN-DOCKER
@@ -70,9 +73,17 @@ dev-docker-build:
 dev-start:
 	@$(DOCKERCOMPOSE) -f docker-compose.dev.yml up $(DOCKERCOMPOSE_UP_OPTS)
 
+.PHONY: dev-exec-php
+dev-exec-php:
+	@$(DOCKERCOMPOSE) -f docker-compose.dev.yml exec fpm bash
+
 .PHONY: dev-lint
 dev-lint:
 	@docker run $(DOCKER_RUN_OPTS) -v $(PWD):/project $(PHP_DEV_IMAGE) make lint
+
+.PHONY: dev-test
+dev-test:
+	@docker run $(DOCKER_RUN_OPTS) -v $(PWD):/project $(PHP_DEV_IMAGE) make test
 
 #
 # END DEV

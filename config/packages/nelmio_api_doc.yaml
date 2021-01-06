@@ -1,0 +1,11 @@
+nelmio_api_doc:
+    models:
+        names:
+            - { alias: 'Книжная категория', type: App\Model\Category }
+    documentation:
+        info:
+            title: API книжного магазина издательства
+            version: 1.0.0
+    areas:
+        path_patterns:
+            - ^/api(?!/doc.*$)

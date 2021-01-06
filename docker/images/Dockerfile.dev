@@ -10,7 +10,7 @@ ENV LANG=ru_RU.UTF-8 \
 COPY --from=composer:2.0.8 /usr/bin/composer /usr/bin/composer
 
 RUN apt-get update -y && \
-    apt-get install -y tzdata locales libpq-dev && \
+    apt-get install -y tzdata locales libpq-dev libzip-dev unzip && \
     rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
@@ -21,7 +21,7 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
 
 RUN pecl install xdebug-2.8.1 && \
     docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && \
-    docker-php-ext-install -j$(getconf _NPROCESSORS_ONLN) pdo_pgsql pgsql && \
+    docker-php-ext-install -j$(getconf _NPROCESSORS_ONLN) pdo_pgsql pgsql zip && \
     docker-php-ext-enable xdebug
 
 COPY scripts/wait-for-it.sh /wait-for-it.sh
