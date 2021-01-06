@@ -42,8 +42,12 @@ dev-prepare-runtime:
 	@echo "$(USER):x:$(USERID):$(GROUPID):$(USERGROUP):/home/$(USER):/bin/bash" > $(PWD)/docker/runtime/passwd
 	@echo "$(USERGROUP):x:$(GROUPID):$(USER)" > $(PWD)/docker/runtime/group
 
+.PHONY: dev-prepare-fs
+dev-prepare-fs:
+	mkdir -p $(PWD)/docker/data/postgres/data || true
+
 .PHONY: dev-install
-dev-install: dev-prepare-runtime
+dev-install: dev-prepare-fs dev-prepare-runtime
 	@docker run $(DOCKER_RUN_OPTS) -v $(PWD):/app -v /tmp:/tmp $(COMPOSER_IMAGE) install
 
 .PHONY: dev-composer-require

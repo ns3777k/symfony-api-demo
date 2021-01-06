@@ -7,7 +7,22 @@ ENV LANG=ru_RU.UTF-8 \
 	COMPOSER_ALLOW_SUPERUSER=1 \
 	COMPOSER_HOME=/tmp
 
-COPY --from=composer /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.0.8 /usr/bin/composer /usr/bin/composer
+
+RUN apt-get update -y && \
+    apt-get install -y tzdata locales libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+	echo "ru_RU.UTF-8 UTF-8" >> /etc/locale.gen && \
+	locale-gen && \
+	cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime && \
+	echo "Moscow/Europe" > /etc/timezone
 
 RUN pecl install xdebug-2.8.1 && \
+    docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && \
+    docker-php-ext-install -j$(getconf _NPROCESSORS_ONLN) pdo_pgsql pgsql && \
     docker-php-ext-enable xdebug
+
+COPY scripts/wait-for-it.sh /wait-for-it.sh
+RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini

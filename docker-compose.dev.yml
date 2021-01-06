@@ -15,9 +15,31 @@ services:
         networks:
             - symfony-api-demo
 
+    postgres:
+        image: postgres:13.1-alpine
+        container_name: postgres
+        user: "$DOCKERUSER"
+        ports:
+            - 5432:5432
+        volumes:
+            - "$PWD/docker/runtime/passwd:/etc/passwd:ro"
+            - "$PWD/docker/runtime/group:/etc/group:ro"
+            - "$PWD/docker/data/postgres/data:/var/lib/postgresql/data"
+        environment:
+            POSTGRES_DB: symfony-api-demo
+            POSTGRES_PASSWORD: password
+        healthcheck:
+            test: [ "CMD-SHELL", "psql -h localhost -p 5432 -U postgres -v ON_ERROR_STOP=1 -c 'select version()' &> /dev/null" ]
+            interval: 2s
+            timeout: 30s
+            retries: 15
+        networks:
+            - symfony-api-demo
+
     fpm:
         image: "$PHP_DEV_IMAGE"
         user: "$DOCKERUSER"
+        command: /wait-for-it.sh postgres:5432 -t 300 -- php-fpm -F -O
         container_name: fpm
         environment:
             XDEBUG_CONFIG: "remote_connect_back=1 remote_enable=1"
@@ -25,6 +47,8 @@ services:
             - "$PWD/docker/runtime/passwd:/etc/passwd:ro"
             - "$PWD/docker/runtime/group:/etc/group:ro"
             - "$PWD:/project"
+        depends_on:
+            - postgres
         networks:
             - symfony-api-demo
 
